@@ -1,26 +1,26 @@
 (ns mccawley-bulk.core
-  (:require [clj-http.client :as client]))
+  (:require [clj-http.client :as client]
+            [clojure.string :as s]))
 
 
 (defn get-parsed-sentences [txt]
-  (let [t (-> (clojure.string/replace txt #"\,|\;|\/|\%"
-                                      {"," "%2C", ";" "%3B",
-                                       "/" "%2F", "%" "%25"})
+  (let [t (-> (s/replace txt #"\,|\;|\/|\%" {"," "%2C", ";" "%3B",
+                                             "/" "%2F", "%" "%25"})
               (client/url-encode-illegal-characters))]
     (-> (client/get (str "http://localhost:3000/parse-multi/" t))
         :body
-        (clojure.string/replace #"\"body\":" ":body ")
-        (clojure.string/replace #"\"parsed-text\":" ":parsed-text ")
-        (clojure.string/replace #"\"num-tokens\":" ":num-tokens ")
-        (clojure.string/replace #"\"num-nodes\":" ":num-nodes ")
-        (clojure.string/replace #"\"num-props\":" ":num-props ")
-        (clojure.string/replace #"\"max-depth\":" ":max-depth ")
-        (clojure.string/replace #"\"top-five\":" ":top-five ")
+        (s/replace #"\"body\":" ":body ")
+        (s/replace #"\"parsed-text\":" ":parsed-text ")
+        (s/replace #"\"num-tokens\":" ":num-tokens ")
+        (s/replace #"\"num-nodes\":" ":num-nodes ")
+        (s/replace #"\"num-props\":" ":num-props ")
+        (s/replace #"\"max-depth\":" ":max-depth ")
+        (s/replace #"\"top-five\":" ":top-five ")
         read-string)))
 
 
-(defn help [n p]
-  (clojure.string/join ", " (map #(get-in % [:body n]) p)))
+(defn j [n p]
+  (s/join ", " (map #(get-in % [:body n]) p)))
 
 
 (defn parse-comments-file [f]
@@ -28,11 +28,12 @@
     (let [processed (get-parsed-sentences pre-processed)]
       (println (str pre-processed
                     "\n\n# Sentences: " (count processed)
-                    "\n# Nodes per sentence: " (help :num-nodes processed)
-                    "\n# Tokens / sentence: " (help :num-tokens processed)
-                    "\n# Propositions / sentence: " (help :num-props processed)
-                    "\n# Tree depth / sentence: " (help :max-depth processed)
-                    "\n# Top 5 nodes / sentence: " (help :top-five processed)
+                    "\n# Words: " (count (s/split pre-processed #"\s+"))
+                    "\n# Nodes per sentence: " (j :num-nodes processed)
+                    "\n# Tokens / sentence: " (j :num-tokens processed)
+                    "\n# Propositions / sentence: " (j :num-props processed)
+                    "\n# Tree depth / sentence: " (j :max-depth processed)
+                    "\n# Top 5 nodes / sentence: " (j :top-five processed)
                     "\n===\n")))))
 
 
