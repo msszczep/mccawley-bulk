@@ -1,43 +1,32 @@
 (ns mccawley-bulk.core
-  (:require [clj-http.client :as client]
-            [clojure.string :as s]))
+  (:require [mccawley-bulk.web :as w]
+            [mccawley-bulk.basic :as b]))
 
 
-(defn get-parsed-sentences [txt]
-  (let [t (-> (s/replace txt #"\,|\;|\/|\%" {"," "%2C", ";" "%3B",
-                                             "/" "%2F", "%" "%25"})
-              (client/url-encode-illegal-characters))]
-    (-> (client/get (str "http://localhost:3000/parse-multi/" t))
-        :body
-        (s/replace #"\"body\":" ":body ")
-        (s/replace #"\"parsed-text\":" ":parsed-text ")
-        (s/replace #"\"num-tokens\":" ":num-tokens ")
-        (s/replace #"\"num-nodes\":" ":num-nodes ")
-        (s/replace #"\"num-props\":" ":num-props ")
-        (s/replace #"\"max-depth\":" ":max-depth ")
-        (s/replace #"\"top-five\":" ":top-five ")
-        read-string)))
+(defn get-data-from-file [f]
+  (line-seq (clojure.java.io/reader f)))
 
 
-(defn j [n p]
-  (s/join ", " (map #(get-in % [:body n]) p)))
+(defn get-sentiment-info [f]
+  (println "get-sentiment-info"))
 
 
-(defn parse-comments-file [f]
-  (doseq [pre-processed (line-seq (clojure.java.io/reader f))]
-    (let [processed (get-parsed-sentences pre-processed)]
-      (println (str pre-processed
-                    "\n\n# Sentences: " (count processed)
-                    "\n# Words: " (count (s/split pre-processed #"\s+"))
-                    "\n# Nodes per sentence: " (j :num-nodes processed)
-                    "\n# Tokens / sentence: " (j :num-tokens processed)
-                    "\n# Propositions / sentence: " (j :num-props processed)
-                    "\n# Tree depth / sentence: " (j :max-depth processed)
-                    "\n# Top 5 nodes / sentence: " (j :top-five processed)
-                    "\n===\n")))))
+(defn get-basic-info [f]
+  (doseq [datum-from-file (get-data-from-file f)]
+    (b/show-basic-stats datum-from-file)))
 
+
+(defn manager [file action]
+  (condp = action
+    "basic" (get-basic-info file)
+    "sentiment" (get-sentiment-info file)
+    (println "Nothing.  There is no third thing.")))
+
+
+;; TODO : Fix IndexOutOfBoundsException
 
 (defn -main [& args]
-  (if (nth args 0)
-    (parse-comments-file (nth args 0))
-    (println "Please specify a text file of comments, one comment per line, as the first argument")))
+  (if (and (nth args 0) (nth args 1))
+    (manager (nth args 0) (nth args 1))
+    (println "Please specify a text file of comments, one comment per line, as the first argument
+              and .")))
