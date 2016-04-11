@@ -1,6 +1,7 @@
 (ns mccawley-bulk.core
   (:require [mccawley-bulk.web :as w]
-            [mccawley-bulk.basic :as b]))
+            [mccawley-bulk.basic :as b]
+            [mccawley-bulk.data :as d]))
 
 
 (defn get-data-from-file [f]
@@ -8,7 +9,9 @@
 
 
 (defn get-sentiment-info [f]
-  (println "get-sentiment-info"))
+  (doseq [datum-from-file (get-data-from-file f)]
+    (println (d/get-entities datum-from-file)
+             (d/get-sentiments datum-from-file))))
 
 
 (defn get-basic-info [f]
@@ -23,7 +26,7 @@
     (println "Nothing.  There is no third thing.")))
 
 
-;; TODO : Fix IndexOutOfBoundsException
+;; TODO: Fix IndexOutOfBoundsException
 
 (defn -main [& args]
   (if (and (nth args 0) (nth args 1))

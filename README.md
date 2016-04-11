@@ -4,7 +4,7 @@ Use the McCawley API for English comments in bulk.
 
 ## Usage
 
-time lein run -m mccawley-bulk.core test.txt
+time lein run -m mccawley-bulk.core test.txt basic
 
 ## License
 
