@@ -2,23 +2,19 @@
   (:require [mccawley-bulk.web :as w]))
 
 
-; TODO: De-duplicate code
-
-(defn get-entities [pre-processed]
-  (for [r (w/get-parsed-sentences pre-processed)]
+(defn get-content [pre-processed-sentences key-to-use nil-value]
+  (for [r (w/get-parsed-sentences pre-processed-sentences)]
     (->> (get-in r [:body :parsed-text])
          read-string
          (tree-seq map? :children)
          (filter #(contains? % :entity))
-         (filter #(not= "O" (:entity %)))
-         (map #(vector (:word %) (:entity %))))))
+         (filter #(not= nil-value (key-to-use %)))
+         (map #(vector (:word %) (key-to-use %))))))
 
 
-(defn get-sentiments [pre-processed]
-  (for [r (w/get-parsed-sentences pre-processed)]
-    (->> (get-in r [:body :parsed-text])
-         read-string
-         (tree-seq map? :children)
-         (filter #(contains? % :entity))
-         (filter #(not= "0" (:sentiment %)))
-         (map #(vector (:word %) (:sentiment %))))))
+(defn get-entities [pre-processed-sentences]
+  (get-content pre-processed-sentences :entity "O"))
+
+
+(defn get-sentiments [pre-processed-sentences]
+  (get-content pre-processed-sentences :sentiment "0"))
