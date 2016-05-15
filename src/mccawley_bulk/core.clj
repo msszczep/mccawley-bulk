@@ -1,7 +1,7 @@
 (ns mccawley-bulk.core
   (:require [mccawley-bulk.web :as w]
             [mccawley-bulk.basic :as b]
-            [mccawley-bulk.data :as d]))
+            [mccawley-bulk.sentiment :as s]))
 
 
 (defn get-data-from-file [f]
@@ -10,8 +10,7 @@
 
 (defn get-sentiment-info [f]
   (doseq [datum-from-file (get-data-from-file f)]
-    (println (d/get-entities datum-from-file)
-             (d/get-sentiments datum-from-file))))
+    (println (s/connect-sentiments-to-entities datum-from-file))))
 
 
 (defn get-basic-info [f]

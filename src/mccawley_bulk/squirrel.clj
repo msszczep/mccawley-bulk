@@ -1,4 +1,4 @@
-(ns mccawley-bulk.c-command
+(ns mccawley-bulk.squirrel
   (:require [clojure.zip :as z]))
 
 ;; From https://en.wikipedia.org/wiki/C-command
