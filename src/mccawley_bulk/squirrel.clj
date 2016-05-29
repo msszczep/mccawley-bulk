@@ -28,6 +28,8 @@
           nil
         (= (:word node) (str (first current-node)))
           current-node
+        (= node (str (first current-node)))
+          current-node
         :else
           (recur (->> current-node z/next)))))
 
@@ -68,3 +70,13 @@
         node-b-starting-point (get-node-location tree node-b)]
     (is-node-dominated? node-a-lowest-branching-node
                         node-b-starting-point)))
+
+
+(defn get-all-zipper-nodes [tree]
+  "Assumes tree is a zipper."
+  (loop [all-nodes []
+         current-node tree]
+    (if (-> current-node z/end?)
+      all-nodes
+      (recur (conj all-nodes current-node)
+             (->> current-node z/next)))))
