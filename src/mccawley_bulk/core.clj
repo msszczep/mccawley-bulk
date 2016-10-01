@@ -1,7 +1,8 @@
 (ns mccawley-bulk.core
   (:require [mccawley-bulk.web :as w]
             [mccawley-bulk.basic :as b]
-            [mccawley-bulk.sentiment :as s]))
+            [mccawley-bulk.sentiment :as s]
+            [mccawley-bulk.sentences :as t]))
 
 
 (defn get-data-from-file [f]
@@ -13,6 +14,11 @@
     (println (s/connect-sentiments-to-entities datum-from-file))))
 
 
+(defn get-sentence-info [f]
+  (doseq [datum-from-file (get-data-from-file f)]
+    (t/show-sentence-stats datum-from-file)))
+
+
 (defn get-basic-info [f]
   (doseq [datum-from-file (get-data-from-file f)]
     (b/show-basic-stats datum-from-file)))
@@ -22,6 +28,7 @@
   (condp = action
     "basic" (get-basic-info file)
     "sentiment" (get-sentiment-info file)
+    "sentences" (get-sentence-info file)
     (println "Nothing.  There is no third thing.")))
 
 

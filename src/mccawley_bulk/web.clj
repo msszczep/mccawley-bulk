@@ -12,3 +12,14 @@
         (clojure.string/replace #"\":" "\"")
         read-string
         clojure.walk/keywordize-keys)))
+
+
+(defn get-parsed-single-sentence [txt]
+  (let [t (-> (s/replace txt #"\,|\;|\/|\%" {"," "%2C", ";" "%3B",
+                                             "/" "%2F", "%" "%25"})
+              (client/url-encode-illegal-characters))]
+    (-> (client/get (str "http://localhost:3000/parse/" t))
+        :body
+        (clojure.string/replace #"\":" "\"")
+        read-string
+        clojure.walk/keywordize-keys)))
